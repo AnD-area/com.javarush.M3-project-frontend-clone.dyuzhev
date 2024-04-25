@@ -11,11 +11,17 @@
     <link href="/css/my.css" rel="stylesheet">
 
 </head>
-<body>
+<body onload="getList()">
 <h1>RPG admin panel</h1>
 <h2>Accounts List:</h2>
 
-<a>Count per page: </a> <select id="numberSelect"></select>
+<label for="numberSelect">Count per page: </label>
+<select id="numberSelect" onchange="getList()">
+<!--    <option value="3">3</option>-->
+<!--    <option value="3">5</option>-->
+<!--    <option value="3">10</option>-->
+<!--    <option value="3">20</option>-->
+</select>
 
 <table id="table01">
     <tr>
@@ -33,27 +39,42 @@
 <div id="pagingButtons">Pages:</div>
 
 <script>
-    let url = "/rest/players"
-    $.get(url, function (data) {
-        let table = $("#table01")
-        $.each(data, function (i, item) {
-            let row = $("<tr></tr>")
-            let names = ["id", "name", "title", "race", "profession",
-                "level", "birthday", "banned"];
-            $.each(names, function (j, name) {
-                if (item.hasOwnProperty(name)) {
-                    let cell = $("<td></td>")
-                    if (name === "birthday") {
-                        cell.text(new Date(item[name]).toLocaleDateString())
-                    } else {
-                        cell.text(item[name])
+    function getList() {
+        let url = "/rest/players"
+        $.get(url, function (data) {
+            let table = $("#table01")
+            $.each(data, function (i, item) {
+                let row = $("<tr></tr>")
+                let names = ["id", "name", "title", "race", "profession",
+                    "level", "birthday", "banned"];
+                $.each(names, function (j, name) {
+                    if (item.hasOwnProperty(name)) {
+                        let cell = $("<td></td>")
+                        if (name === "birthday") {
+                            cell.text(new Date(item[name]).toLocaleDateString())
+                        } else {
+                            cell.text(item[name])
+                        }
+                        row.append(cell)
                     }
-                    row.append(cell)
-                }
+                })
+                table.append(row)
             })
-            table.append(row)
         })
-    })
+        let accCount = getAccountsCount()
+        let accountsOnPage = $("#numberSelect").val()
+        let pagesCount = Math.ceil(accCount / accountsOnPage)
+        console.log("pagesCount = " + pagesCount)
+    }
+    function getAccountsCount() {
+        let url = "/rest/players/count"
+        let count = 0
+        $.get(url, function (data, status) {
+            count = parseInt(data)
+            // console.log("Number of accounts: " + count)
+        })
+        return count
+    }
 
 </script>
 
@@ -66,19 +87,6 @@
         // };
         document.getElementById("pagingButtons").appendChild(btn)
     }
-</script>
-
-<script>
-    function getAccountsCount() {
-        let url = "/rest/players/count"
-        let count = 0
-        $.get(url, function (data, status) {
-            count = parseInt(data)
-            // console.log("Number of accounts: " + count)
-        })
-        return count
-    }
-    getAccountsCount()
 </script>
 
 <script>
