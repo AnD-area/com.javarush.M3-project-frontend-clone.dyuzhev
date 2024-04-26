@@ -17,10 +17,10 @@
 
 <label for="numberSelect">Count per page: </label>
 <select id="numberSelect" onchange="getList()">
-<!--    <option value="3">3</option>-->
-<!--    <option value="3">5</option>-->
-<!--    <option value="3">10</option>-->
-<!--    <option value="3">20</option>-->
+    <!--    <option value="3">3</option>-->
+    <!--    <option value="3">5</option>-->
+    <!--    <option value="3">10</option>-->
+    <!--    <option value="3">20</option>-->
 </select>
 
 <table id="table01">
@@ -61,18 +61,23 @@
                 table.append(row)
             })
         })
-        let accCount = getAccountsCount()
-        let accountsOnPage = $("#numberSelect").val()
-        let pagesCount = Math.ceil(accCount / accountsOnPage)
-        console.log("pagesCount = " + pagesCount)
+
+// additional function "someFunction" for using "await $.get" without making "async: false" $.get query
+        async function someFunction() {
+            let accCount = await getAccountsCount()
+            console.log(accCount)
+            let accountsOnPage = $("#numberSelect").val()
+            let pagesCount = Math.ceil(accCount / accountsOnPage)
+            console.log("pagesCount = " + pagesCount)
+        }
+
+        someFunction()
     }
-    function getAccountsCount() {
-        let url = "/rest/players/count"
-        let count = 0
-        $.get(url, function (data, status) {
-            count = parseInt(data)
-            // console.log("Number of accounts: " + count)
-        })
+
+    async function getAccountsCount() {
+        let response = await $.get("/rest/players/count")
+        let count = parseInt(response)
+        console.log("Number of accounts: " + count)
         return count
     }
 
@@ -82,9 +87,6 @@
     for (let i = 1; i <= 10; i++) {
         let btn = document.createElement("button")
         btn.innerHTML = String(i);
-        // btn.onclick = function() {
-        //     alert("You clicked button " + i);
-        // };
         document.getElementById("pagingButtons").appendChild(btn)
     }
 </script>
